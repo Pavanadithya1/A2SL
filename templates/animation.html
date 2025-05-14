@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <div class="card mb-4 slide-up">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-sign-language"></i> Sign Language Converter
+        </h2>
+
+        <!-- Input Form -->
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="speechToText" class="form-label">
+                    Enter text or use microphone:
+                </label>
+                <div class="input-group">
+                    <input type="text" name="sen" id="speechToText"
+                           class="form-control" placeholder="Type or speak your text..."
+                           value="{{ text|default:'' }}" required>
+                    <button type="button" class="btn btn-accent" onclick="record()">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-exchange-alt"></i> Convert to Sign Language
+            </button>
+        </form>
+
+        {% if text %}
+        <!-- Results Section (hidden until conversion) -->
+        <div class="results mt-4 slide-up">
+            <div class="form-group">
+                <label class="form-label">Original Text:</label>
+                <div class="card p-3">{{ text }}</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Key Words:</label>
+                <div class="card p-3">
+                    <div class="words-grid" id="word-list">
+                        {% for word in words %}
+                        <span class="word-badge" data-word="{{ word }}">
+                            {{ word }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animation Popup Trigger Button -->
+            <button class="btn btn-accent w-100 mt-3" onclick="showAnimationPopup()">
+                <i class="fas fa-play"></i> Show Animation Again
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Animation Popup -->
+<div id="animationPopup" class="popup-container">
+    <div class="popup-content">
+        <div class="popup-header">
+            <h3><i class="fas fa-video"></i> Sign Language Animation</h3>
+            <button class="close-btn" onclick="hideAnimationPopup()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="popup-body">
+            <div id="loadingSpinner" class="loading-spinner"></div>
+            <video id="videoPlayer" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support HTML5 video.
+            </video>
+
+            <div class="controls">
+                <button class="btn btn-accent" onclick="playAnimation()">
+                    <i class="fas fa-play"></i> Play
+                </button>
+                <button class="btn btn-outline" onclick="resetAnimation()">
+                    <i class="fas fa-redo"></i> Restart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Popup Styles */
+    .popup-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .popup-content {
+        background-color: white;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow: auto;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        animation: popupFadeIn 0.3s ease-out;
+    }
+
+    @keyframes popupFadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--primary);
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    .popup-header h3 {
+        margin: 0;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .popup-body {
+        padding: 1.5rem;
+    }
+
+    #videoPlayer {
+        width: 100%;
+        max-height: 60vh;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    /* Other existing styles */
+    .input-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .words-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .word-badge {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .word-badge.bg-success {
+        background-color: var(--success) !important;
+    }
+
+    .loading-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid var(--primary);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+        display: none;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Animation variables
+    let currentWordIndex = 0;
+    let wordElements = [];
+    let videoSources = [];
+
+    // Show popup automatically after form submission
+    {% if words %}
+    document.addEventListener('DOMContentLoaded', function() {
+        initAnimation();
+        showAnimationPopup();
+    });
+    {% endif %}
+
+    // Popup control functions
+    function showAnimationPopup() {
+        document.getElementById('animationPopup').style.display = 'flex';
+        playAnimation();
+    }
+
+    function hideAnimationPopup() {
+        resetAnimation();
+        document.getElementById('animationPopup').style.display = 'none';
+    }
+
+    // Speech recognition function
+    function record() {
+        try {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-IN';
+
+            const micBtn = document.querySelector('[onclick="record()"]');
+            micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            micBtn.classList.remove('btn-accent');
+            micBtn.classList.add('btn-primary');
+
+            recognition.onresult = function(event) {
+                document.getElementById('speechToText').value = event.results[0][0].transcript;
+                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                micBtn.classList.remove('btn-primary');
+                micBtn.classList.add('btn-accent');
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                micBtn.classList.remove('btn-primary');
+                micBtn.classList.add('btn-accent');
+            };
+
+            recognition.start();
+        } catch (e) {
+            alert('Speech recognition is not supported in your browser. Please try Chrome or Edge.');
+            console.error(e);
+        }
+    }
+
+    // Animation player functions
+    function playAnimation() {
+        document.getElementById('loadingSpinner').style.display = 'block';
+
+        if (currentWordIndex >= videoSources.length) {
+            resetAnimation();
+            return;
+        }
+
+        const videoPlayer = document.getElementById('videoPlayer');
+        const currentWord = wordElements[currentWordIndex];
+
+        wordElements.forEach(el => el.classList.remove('bg-success'));
+        currentWord.classList.add('bg-success');
+
+        videoPlayer.src = videoSources[currentWordIndex];
+        videoPlayer.load();
+        videoPlayer.play();
+
+        videoPlayer.onended = function() {
+            currentWordIndex++;
+            if (currentWordIndex < videoSources.length) {
+                setTimeout(playAnimation, 300);
+            } else {
+                currentWordIndex = 0;
+            }
+        };
+    }
+
+    function resetAnimation() {
+        const videoPlayer = document.getElementById('videoPlayer');
+        videoPlayer.pause();
+        videoPlayer.currentTime = 0;
+        videoPlayer.src = '';
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+        wordElements.forEach(el => {
+            el.classList.remove('bg-success');
+        });
+
+        currentWordIndex = 0;
+    }
+
+    function initAnimation() {
+        wordElements = Array.from(document.querySelectorAll('.word-badge'));
+        videoSources = wordElements.map(el => {
+            const word = el.getAttribute('data-word');
+            return `/static/${word}.mp4`;
+        });
+    }
+
+    // Close popup when clicking outside content
+    document.getElementById('animationPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideAnimationPopup();
+        }
+    });
+
+    // Initialize video loading indicators
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoPlayer = document.getElementById('videoPlayer');
+        videoPlayer.onwaiting = function() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        };
+        videoPlayer.onplaying = function() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        };
+    });
+</script>
+{% endblock %}

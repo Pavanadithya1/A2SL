@@ -1,0 +1,6 @@
+flask==2.0.1
+flask-cors==3.0.10
+deepface==0.0.79
+opencv-python==4.5.5.64
+numpy==1.21.2
+sqlite3==3.36.0

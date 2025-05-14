@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="card slide-up">
+        <h1 class="text-center mb-4">
+            <i class="fas fa-info-circle"></i> About A2SL
+        </h1>
+
+        <div class="about-content" style="max-width: 800px; margin: 0 auto;">
+            <div class="mb-4 slide-up" style="animation-delay: 0.2s;">
+                <h2 class="mb-3">Version 1.0.0</h2>
+                <p>Audio to Sign Language (A2SL) is an innovative tool designed to bridge communication gaps by converting audio and text inputs into Indian Sign Language animations.</p>
+            </div>
+
+            <hr class="mb-4">
+
+            <div class="mb-4 slide-up" style="animation-delay: 0.4s;">
+                <h2 class="mb-3">Our Mission</h2>
+                <p>MINI PROJECT (TEAM-B13)
+                   CSE-DATASCIENCE
+                   AVNIET</p>
+            </div>
+
+            <hr class="mb-4">
+
+            <div class="mb-4 slide-up" style="animation-delay: 0.6s;">
+                <h2 class="mb-3">Creator Team</h2>
+                <div class="team-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <!-- First Row -->
+                    <div class="team-member card text-center p-3">
+                        <div class="avatar mb-2" style="width: 80px; height: 80px; background-color: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                            KPA
+                        </div>
+                        <h4>K PAVANADITHYA</h4>
+                        <p class="text-muted">225U1A6727</p>
+                    </div>
+
+                    <div class="team-member card text-center p-3">
+                        <div class="avatar mb-2" style="width: 80px; height: 80px; background-color: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                            MVK
+                        </div>
+                        <h4>M VENKAT KALYAN</h4>
+                        <p class="text-muted">225U1A6732</p>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="team-member card text-center p-3">
+                        <div class="avatar mb-2" style="width: 80px; height: 80px; background-color: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                            YS
+                        </div>
+                        <h4>Y SARIKA</h4>
+                        <p class="text-muted">225U1A6762</p>
+                    </div>
+
+                    <div class="team-member card text-center p-3">
+                        <div class="avatar mb-2" style="width: 80px; height: 80px; background-color: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                            GJ
+                        </div>
+                        <h4>G JAHNAVI</h4>
+                        <p class="text-muted">235U5A6702</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="mb-4">
+
+            <div class="text-center slide-up" style="animation-delay: 0.8s;">
+                <p class="lead">Thank you for visiting our website and supporting our mission to make communication more accessible!</p>
+                <a href="{% url 'animation' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-sign-language"></i> Try the Converter
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effect to team members
+        const teamMembers = document.querySelectorAll('.team-member');
+        teamMembers.forEach((member, index) => {
+            member.style.animationDelay = `${0.4 + (index * 0.1)}s`;
+
+            member.addEventListener('mouseenter', () => {
+                const avatar = member.querySelector('.avatar');
+                avatar.style.transform = 'scale(1.1)';
+                avatar.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            });
+
+            member.addEventListener('mouseleave', () => {
+                const avatar = member.querySelector('.avatar');
+                avatar.style.transform = 'scale(1)';
+                avatar.style.boxShadow = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

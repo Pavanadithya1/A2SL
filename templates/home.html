@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <section class="hero mb-5">
+        <div class="card text-center">
+            <h1 class="mb-3 fade-in">Welcome to Audio to Sign Language Converter</h1>
+            <p class="mb-4 fade-in" style="animation-delay: 0.2s;">Bridging communication gaps through technology</p>
+
+            <div class="video-container mb-4 fade-in" style="animation-delay: 0.4s;">
+                <video width="500" height="380" autoplay loop muted class="card pulse" style="max-width: 100%; height: auto;">
+                    <source src="{% static 'Hello.mp4' %}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="fade-in" style="animation-delay: 0.6s;">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'animation' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-language"></i> Start Converting
+                    </a>
+                {% else %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="{% url 'signup' %}" class="btn btn-outline btn-lg">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="features mb-5">
+        <h2 class="text-center mb-4 slide-up">Key Features</h2>
+        <div class="row" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center;">
+            <div class="card col-md-4 slide-up" style="flex: 1 1 300px; max-width: 350px;">
+                <div class="text-center mb-3">
+                    <i class="fas fa-comment-alt fa-3x mb-2" style="color: var(--primary);"></i>
+                    <h3>Text to Sign</h3>
+                </div>
+                <p>Convert written text into Indian Sign Language animations for effective communication.</p>
+            </div>
+
+            <div class="card col-md-4 slide-up" style="flex: 1 1 300px; max-width: 350px; animation-delay: 0.2s;">
+                <div class="text-center mb-3">
+                    <i class="fas fa-microphone fa-3x mb-2" style="color: var(--primary);"></i>
+                    <h3>Speech to Sign</h3>
+                </div>
+                <p>Use your microphone to convert spoken words into sign language animations in real-time.</p>
+            </div>
+
+            <div class="card col-md-4 slide-up" style="flex: 1 1 300px; max-width: 350px; animation-delay: 0.4s;">
+                <div class="text-center mb-3">
+                    <i class="fas fa-book fa-3x mb-2" style="color: var(--primary);"></i>
+                    <h3>Learning Resource</h3>
+                </div>
+                <p>A valuable tool for learning Indian Sign Language and improving communication accessibility.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation to features
+        const features = document.querySelectorAll('.features .card');
+        features.forEach((feature, index) => {
+            feature.style.animationDelay = `${index * 0.2}s`;
+        });
+
+        // Add pulse animation to video on hover
+        const video = document.querySelector('.video-container video');
+        video.addEventListener('mouseenter', () => {
+            video.classList.add('pulse');
+        });
+        video.addEventListener('mouseleave', () => {
+            video.classList.remove('pulse');
+        });
+    });
+</script>
+{% endblock %}

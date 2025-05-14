@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="card slide-up">
+        <h1 class="text-center mb-4">
+            <i class="fas fa-envelope"></i> Contact Us
+        </h1>
+
+        <div class="contact-container" style="display: flex; flex-wrap: wrap; gap: 2rem;">
+            <div class="contact-info" style="flex: 1 1 300px;">
+                <div class="card p-4 h-100">
+                    <h3 class="mb-4 text-center">
+                        <i class="fas fa-university"></i> AVN Institute of Engineering and Technology
+                    </h3>
+
+                    <div class="mb-4 slide-up" style="animation-delay: 0.2s;">
+                        <h4><i class="fas fa-users"></i> Team</h4>
+                        <p>III Year - Department of Data Science</p>
+                    </div>
+
+                    <div class="mb-4 slide-up" style="animation-delay: 0.4s;">
+                        <h4><i class="fas fa-map-marker-alt"></i> Location</h4>
+                        <p><font8 >AVNIET Campus , Telangana</font8></p>
+                    </div>
+
+                    <div class="slide-up" style="animation-delay: 0.6s;">
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation to form elements
+        const formElements = document.querySelectorAll('.contact-form .form-group');
+        formElements.forEach((el, index) => {
+            el.style.animationDelay = `${0.2 + (index * 0.1)}s`;
+        });
+    });
+</script>
+{% endblock %}
